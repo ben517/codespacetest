@@ -1,0 +1,5 @@
+Paris is the capital of France.
+Einstein developed the general theory of relativity.
+The cat is sitting on the mat.
+apple
+Hello, world!
