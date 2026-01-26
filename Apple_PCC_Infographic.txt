@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Intelligence: Private Cloud Compute Architecture</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts for Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Config for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pcc: {
+                            dark: '#0B1120',    // Deep Navy Background
+                            primary: '#007AFF', // Electric Blue (Apple-like)
+                            accent: '#00E5FF',  // Cyan Highlight
+                            card: '#1E293B',    // Slate Card Background
+                            text: '#F8FAFC',    // White/Off-white Text
+                            muted: '#94A3B8'    // Muted Text
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0F172A; /* Slate 900 */
+            color: #F8FAFC;
+        }
+
+        /* Chart Container Rules - MANDATORY */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        /* Custom Flowchart Connector Lines using CSS Borders */
+        .connector-line {
+            width: 2px;
+            background-color: #007AFF;
+            margin: 0 auto;
+            height: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #007AFF, #00E5FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-pcc-primary selection:text-white">
+
+    <!-- 
+    PLAN SUMMARY:
+    1. Header: Intro to the "Private Cloud Compute" (PCC) concept.
+    2. Architecture Overview (Diagram): Visualizing the path from Device -> OHTTP -> PCC Node using HTML/CSS Cards.
+    3. The Hybrid Model (Donut Chart): Visualizing the split between On-Device and Cloud processing.
+    4. Security & Privacy (Radar Chart): Comparing PCC against Traditional Cloud AI on privacy metrics.
+    5. The Request Lifecycle (Flowchart): Step-by-step logic flow (Orchestration -> Processing -> Deletion).
+    6. Hardware Foundation: Details on the Apple Silicon Server Nodes.
+    
+    PALETTE: Brilliant Blues (Dark Mode Base with Electric Blue/Cyan Accents)
+    NO SVG USED. NO MERMAID USED.
+    -->
+
+    <!-- HEADER SECTION -->
+    <header class="w-full py-12 px-6 text-center border-b border-gray-800 bg-pcc-dark">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-pcc-accent uppercase bg-blue-900/30 rounded-full border border-blue-500/30">
+                Architecture Deep Dive
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">
+                Private Cloud <span class="gradient-text">Compute</span>
+            </h1>
+            <p class="text-xl text-pcc-muted max-w-2xl mx-auto">
+                How Apple Intelligence extends privacy into the cloud using custom Apple Silicon, stateless processing, and verifiable transparency.
+            </p>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT GRID -->
+    <main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12">
+
+        <!-- SECTION 1: THE HYBRID ARCHITECTURE CONCEPT -->
+        <section class="md:col-span-2">
+            <h2 class="text-3xl font-bold mb-6 border-l-4 border-pcc-primary pl-4">1. The Hybrid Model</h2>
+            <div class="bg-pcc-card rounded-xl p-8 shadow-lg border border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-lg text-gray-300 mb-4">
+                            Apple Intelligence relies on a hybrid execution model. An on-device <b>Orchestrator</b> determines if a request can be handled locally by the device's Neural Engine.
+                        </p>
+                        <p class="text-gray-400 text-sm mb-6">
+                            Only when a model requires significant computational power (larger parameter count) does it hand off the request to Private Cloud Compute (PCC). This minimizes data exposure and latency.
+                        </p>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="h-3 w-3 rounded-full bg-blue-500"></div>
+                            <span class="text-sm font-semibold">On-Device Processing (Privacy Default)</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="h-3 w-3 rounded-full bg-cyan-400"></div>
+                            <span class="text-sm font-semibold">Private Cloud Compute (Complex Tasks)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Container 1 -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="chart-container">
+                            <canvas id="hybridChart"></canvas>
+                        </div>
+                        <p class="text-center text-xs text-gray-500 mt-2">Hypothetical Request Distribution</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: ARCHITECTURE DIAGRAM (HTML/CSS ONLY) -->
+        <section class="md:col-span-2">
+            <h2 class="text-3xl font-bold mb-6 border-l-4 border-pcc-accent pl-4">2. Architecture & Data Flow</h2>
+            <p class="mb-8 text-gray-300">
+                The architecture is designed to ensure that Apple <b>cannot</b> inspect the data even if it wanted to. The request is encrypted on the user's device and only decrypted inside the secure enclave of the PCC node.
+            </p>
+            
+            <!-- CSS/HTML Flow Diagram -->
+            <div class="bg-gray-900 rounded-2xl p-6 md:p-10 border border-gray-700 overflow-hidden relative">
+                <!-- Background decorative grid -->
+                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#4b5563 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-stretch gap-4">
+                    
+                    <!-- STEP 1: USER DEVICE -->
+                    <div class="flex-1 bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-600 flex flex-col items-center text-center hover:border-pcc-primary transition-colors">
+                        <div class="text-4xl mb-3">📱</div>
+                        <h3 class="font-bold text-white mb-2">User Device</h3>
+                        <p class="text-xs text-gray-400 mb-3">iPhone, iPad, Mac</p>
+                        <div class="w-full bg-black/40 rounded p-2 text-xs text-left text-green-400 font-mono">
+                            > Orchestrator checks<br>
+                            > Encrypts for PCC<br>
+                            > Removes IP info
+                        </div>
+                    </div>
+
+                    <!-- CONNECTOR (Arrow) -->
+                    <div class="flex md:flex-col items-center justify-center text-pcc-accent text-2xl font-bold py-2 md:py-0 md:px-2">
+                        <span class="hidden md:block">➜</span>
+                        <span class="md:hidden">⬇</span>
+                    </div>
+
+                    <!-- STEP 2: OHTTP RELAY -->
+                    <div class="flex-1 bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-600 flex flex-col items-center text-center hover:border-pcc-primary transition-colors">
+                        <div class="text-4xl mb-3">🛡️</div>
+                        <h3 class="font-bold text-white mb-2">OHTTP Relay</h3>
+                        <p class="text-xs text-gray-400 mb-3">Anonymity Layer</p>
+                        <div class="w-full bg-black/40 rounded p-2 text-xs text-left text-yellow-400 font-mono">
+                            > Masks User IP<br>
+                            > Oblivious HTTP<br>
+                            > No TLS Decryption
+                        </div>
+                        <p class="mt-2 text-[10px] text-gray-500 italic">Separates "Who" from "What"</p>
+                    </div>
+
+                    <!-- CONNECTOR (Arrow) -->
+                    <div class="flex md:flex-col items-center justify-center text-pcc-accent text-2xl font-bold py-2 md:py-0 md:px-2">
+                        <span class="hidden md:block">➜</span>
+                        <span class="md:hidden">⬇</span>
+                    </div>
+
+                    <!-- STEP 3: PCC CLUSTER -->
+                    <div class="flex-1 bg-gradient-to-br from-blue-900/40 to-gray-900 p-6 rounded-xl border-2 border-pcc-primary flex flex-col items-center text-center shadow-[0_0_20px_rgba(0,122,255,0.3)]">
+                        <div class="text-4xl mb-3">☁️</div>
+                        <h3 class="font-bold text-white mb-2">PCC Node</h3>
+                        <p class="text-xs text-gray-400 mb-3">Apple Silicon Server</p>
+                        <div class="w-full bg-black/40 rounded p-2 text-xs text-left text-blue-400 font-mono">
+                            > Secure Boot<br>
+                            > Decrypts Data<br>
+                            > Runs LLM<br>
+                            > Wipes RAM
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Bottom Label -->
+                <div class="mt-8 text-center">
+                    <span class="px-4 py-2 bg-green-900/30 text-green-400 rounded-full text-xs font-bold border border-green-800">
+                        🔒 End-to-End Encryption Guarantee
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PRIVACY COMPARISON (RADAR CHART) -->
+        <section class="md:col-span-1">
+            <h2 class="text-2xl font-bold mb-4">Privacy Standards</h2>
+            <p class="text-sm text-gray-400 mb-6">
+                Comparison of Apple's PCC model versus traditional server-side AI processing models. PCC prioritizes ephemeral data processing and verifiable transparency.
+            </p>
+            <div class="bg-pcc-card p-6 rounded-xl shadow-lg border border-gray-700">
+                <!-- Chart Container 2 -->
+                <div class="chart-container">
+                    <canvas id="privacyRadar"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: HARDWARE INNOVATION (CARDS) -->
+        <section class="md:col-span-1">
+            <h2 class="text-2xl font-bold mb-4">The Hardware Stack</h2>
+            <p class="text-sm text-gray-400 mb-6">
+                Standard cloud servers use commodity hardware. PCC uses custom Apple Silicon to enforce security properties at the transistor level.
+            </p>
+            
+            <div class="space-y-4">
+                <!-- Card 1 -->
+                <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-pcc-accent flex items-start space-x-4">
+                    <div class="text-2xl pt-1">⚙️</div>
+                    <div>
+                        <h4 class="font-bold text-white">Secure Enclave</h4>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Encryption keys are rooted in hardware. Even the OS admin cannot access the keys required to decrypt user data.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-pcc-primary flex items-start space-x-4">
+                    <div class="text-2xl pt-1">🚫</div>
+                    <div>
+                        <h4 class="font-bold text-white">No Persistent Storage</h4>
+                        <p class="text-xs text-gray-400 mt-1">
+                            The OS is booted as a read-only volume. User data exists only in RAM and is cryptographically wiped after the response.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-purple-500 flex items-start space-x-4">
+                    <div class="text-2xl pt-1">🔍</div>
+                    <div>
+                        <h4 class="font-bold text-white">Verifiable Builds</h4>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Software images are published to a tamper-proof transparency log. Security researchers can verify the exact code running on the cloud.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: DETAILED REQUEST LOGIC (VERTICAL FLOW) -->
+        <section class="md:col-span-2 mb-12">
+            <h2 class="text-3xl font-bold mb-6 border-l-4 border-white pl-4">3. The Orchestration Logic</h2>
+            <div class="bg-pcc-card rounded-xl p-8 shadow-lg border border-gray-700">
+                <p class="text-center text-gray-400 mb-8 max-w-2xl mx-auto">
+                    A detailed look at the decision-making process that occurs every time a user invokes Apple Intelligence features like Siri or Writing Tools.
+                </p>
+
+                <!-- Step 1 -->
+                <div class="max-w-xl mx-auto border border-gray-600 rounded-lg p-4 bg-gray-800/50 text-center relative">
+                    <h4 class="text-pcc-accent font-bold uppercase text-xs tracking-wider mb-2">Start</h4>
+                    <p class="font-semibold">User Request Received</p>
+                    <p class="text-xs text-gray-400">"Summarize this email" / "Generate image"</p>
+                </div>
+
+                <!-- Connector -->
+                <div class="connector-line"></div>
+                <div class="text-center text-gray-500 text-xl font-bold leading-none mb-2">↓</div>
+
+                <!-- Step 2 -->
+                <div class="max-w-xl mx-auto border-2 border-pcc-primary rounded-lg p-5 bg-blue-900/20 text-center relative shadow-[0_0_15px_rgba(0,122,255,0.1)]">
+                    <h4 class="text-blue-400 font-bold uppercase text-xs tracking-wider mb-2">Orchestrator Decision</h4>
+                    <p class="font-semibold text-white">Is the model task too large for on-device Neural Engine?</p>
+                </div>
+
+                <!-- Connector Split -->
+                <div class="max-w-xl mx-auto h-8 relative">
+                    <div class="absolute left-1/2 top-0 bottom-0 w-[2px] bg-gray-600 -translate-x-1/2"></div>
+                    <div class="absolute top-1/2 left-0 right-0 h-[2px] bg-gray-600"></div>
+                </div>
+
+                <!-- Split Content -->
+                <div class="max-w-3xl mx-auto grid grid-cols-2 gap-4 md:gap-12">
+                    
+                    <!-- Left Path (Local) -->
+                    <div class="flex flex-col items-center">
+                        <div class="h-4 w-[2px] bg-gray-600 mb-1"></div>
+                        <div class="text-gray-500 text-lg font-bold leading-none mb-2">↓</div>
+                        <div class="w-full border border-green-600/50 bg-green-900/10 rounded-lg p-4 text-center">
+                            <span class="text-green-400 font-bold text-sm block mb-1">NO (Local)</span>
+                            <p class="text-xs text-gray-300">Run Small Language Model (3B params) on Device.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Path (Cloud) -->
+                    <div class="flex flex-col items-center">
+                        <div class="h-4 w-[2px] bg-gray-600 mb-1"></div>
+                        <div class="text-gray-500 text-lg font-bold leading-none mb-2">↓</div>
+                        <div class="w-full border border-cyan-600/50 bg-cyan-900/10 rounded-lg p-4 text-center">
+                            <span class="text-cyan-400 font-bold text-sm block mb-1">YES (PCC)</span>
+                            <p class="text-xs text-gray-300">Encrypt for PCC Cluster Public Key.</p>
+                        </div>
+                        
+                        <!-- PCC Sub-steps -->
+                        <div class="connector-line mt-2"></div>
+                        <div class="w-full border border-gray-700 bg-gray-800 rounded-lg p-3 text-center mt-2">
+                            <p class="text-xs text-gray-400">Route via OHTTP Relay (Hide IP)</p>
+                        </div>
+                        <div class="connector-line mt-2"></div>
+                        <div class="w-full border border-gray-700 bg-gray-800 rounded-lg p-3 text-center mt-2">
+                            <p class="text-xs text-gray-400">Execute in Secure Enclave</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Merge Back -->
+                <div class="max-w-xl mx-auto h-8 relative mt-4">
+                    <div class="absolute left-1/2 top-0 bottom-0 w-[2px] bg-gray-600 -translate-x-1/2"></div>
+                    <div class="absolute top-1/2 left-[25%] right-[25%] h-[2px] bg-gray-600"></div>
+                </div>
+
+                <!-- Final Step -->
+                <div class="max-w-xl mx-auto text-center">
+                    <div class="text-gray-500 text-lg font-bold leading-none mb-2">↓</div>
+                    <div class="border border-white/20 rounded-lg p-4 bg-gray-800">
+                        <p class="font-bold text-white">Result Returned to App</p>
+                        <p class="text-xs text-gray-500 mt-1">PCC Data Wiped from RAM Immediately</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 text-gray-600 text-sm border-t border-gray-800">
+        <p>Visualization based on Apple Security Research Reports regarding Private Cloud Compute.</p>
+        <p>&copy; 2024 Infographic Generation. No SVGs or Mermaid JS used.</p>
+    </footer>
+
+    <!-- SCRIPT SECTION FOR CHARTS -->
+    <script>
+        // --- UTILITY: Label Wrapping Helper ---
+        // Splits long strings into arrays of shorter strings for Chart.js
+        function formatLabel(str, maxwidth) {
+            if (typeof str !== 'string' || str.length <= maxwidth) return str;
+            var sections = [];
+            var words = str.split(" ");
+            var temp = "";
+            words.forEach(function(item, index) {
+                if (temp.length > 0) {
+                    var concat = temp + ' ' + item;
+                    if (concat.length > maxwidth) {
+                        sections.push(temp);
+                        temp = item;
+                    } else {
+                        temp = concat;
+                    }
+                } else {
+                    temp = item;
+                }
+                if (index === words.length - 1) {
+                    sections.push(temp);
+                }
+            });
+            return sections;
+        }
+
+        // --- GLOBAL CHART DEFAULTS ---
+        Chart.defaults.color = '#94A3B8';
+        Chart.defaults.font.family = 'Inter';
+
+        // --- CHART 1: HYBRID WORKLOAD (DONUT) ---
+        const ctxHybrid = document.getElementById('hybridChart').getContext('2d');
+        const hybridChart = new Chart(ctxHybrid, {
+            type: 'doughnut',
+            data: {
+                // Labels processed for wrapping
+                labels: [
+                    formatLabel('On-Device Processing (Neural Engine)', 20), 
+                    formatLabel('Private Cloud Compute (Apple Silicon Server)', 20)
+                ],
+                datasets: [{
+                    data: [75, 25], // Hypothetical 75/25 split
+                    backgroundColor: [
+                        '#007AFF', // Electric Blue
+                        '#00E5FF'  // Cyan Accent
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#F8FAFC',
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1E293B',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#CBD5E1',
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- CHART 2: PRIVACY RADAR ---
+        const ctxRadar = document.getElementById('privacyRadar').getContext('2d');
+        const privacyRadar = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: [
+                    formatLabel('Data Minimization', 15),
+                    formatLabel('Verifiable Transparency', 15),
+                    formatLabel('Hardware Security', 15),
+                    formatLabel('Anonymity (OHTTP)', 15),
+                    formatLabel('Ephemeral Processing', 15)
+                ],
+                datasets: [{
+                    label: 'Apple PCC',
+                    data: [95, 100, 95, 90, 100],
+                    fill: true,
+                    backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                    borderColor: '#00E5FF',
+                    pointBackgroundColor: '#00E5FF',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#00E5FF'
+                }, {
+                    label: 'Traditional Cloud AI',
+                    data: [60, 40, 70, 30, 50],
+                    fill: true,
+                    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#94A3B8'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        pointLabels: {
+                            color: '#F8FAFC',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        ticks: {
+                            display: false,
+                            backdropColor: 'transparent'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#F8FAFC' }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1E293B',
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
