@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI OS 研究报告：Tizen 与 Android 技术全景解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Slate Gray & Tech Blue (Slate-50, Slate-800, Blue-600, Teal-500) -->
+    <!-- Application Structure Plan: The SPA uses a dashboard-style layout with a fixed sidebar navigation for seamless exploring. It is divided into 4 thematic sections: 1) AI OS Concepts, 2) Tizen vs Android Comparison, 3) Android's Core Work, and 4) Android's Tech Architecture. This logical flow takes the user from high-level theory to comparative analysis, and finally into a deep-dive of the requested focus area (Android), prioritizing ease of consumption. -->
+    <!-- Visualization & Content Choices: 1. Overview Cards (HTML/CSS): Display core concepts. 2. Radar Chart (Chart.js): Compare Tizen and Android across 5 dimensions to quickly visualize strengths. 3. Interactive Stack Diagram (HTML/Tailwind + JS): Explain Android's AI architecture without using SVG/Mermaid, allowing users to click layers for details. 4. Feature Toggle (JS): Switch between specific Android AI capabilities to keep the UI clean. Confirming NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .layer-btn[data-active="true"] {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .layer-btn[data-active="false"] {
+            background-color: #f8fafc;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col md:flex-row min-h-screen">
+
+    <nav class="w-full md:w-64 bg-white shadow-lg md:fixed h-auto md:h-screen flex flex-col">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-2xl font-bold text-blue-700 tracking-tight">AI OS <span class="text-slate-800">Insight</span></h1>
+            <p class="text-xs text-slate-500 mt-2">下一代操作系统研究报告</p>
+        </div>
+        <ul class="flex-grow p-4 space-y-2 overflow-y-auto" id="nav-links">
+            <li><a href="#section-concepts" class="block px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-medium transition-colors cursor-pointer nav-item" data-target="section-concepts">1. AI OS 核心概念</a></li>
+            <li><a href="#section-compare" class="block px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-600 font-medium transition-colors cursor-pointer nav-item" data-target="section-compare">2. Tizen 与 Android 对比</a></li>
+            <li><a href="#section-android-core" class="block px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-600 font-medium transition-colors cursor-pointer nav-item" data-target="section-android-core">3. Android AI 核心工作</a></li>
+            <li><a href="#section-architecture" class="block px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-600 font-medium transition-colors cursor-pointer nav-item" data-target="section-architecture">4. Android AI 技术方案</a></li>
+        </ul>
+    </nav>
+
+    <main class="flex-1 md:ml-64 p-6 md:p-10 lg:p-14 overflow-y-auto">
+        
+        <header class="mb-12 max-w-5xl mx-auto">
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">迈向智能原生：AI OS 演进与 Android 实践深度解析</h2>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                本报告旨在梳理 AI OS（人工智能操作系统）的基础概念与关键技术，并重点聚焦于移动与物联网领域的两大代表——Tizen OS 与 Android。我们将深入探讨两者在 AI 化道路上的不同侧重点，并全面解构 Android 当前在 AI OS 领域所做的核心工作及其底层技术架构。
+            </p>
+        </header>
+
+        <div class="max-w-5xl mx-auto space-y-20">
+
+            <section id="section-concepts" class="content-section">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-4 mb-4">1. AI OS 相关的概念和技术</h3>
+                    <p class="text-slate-600">本节介绍了传统操作系统向 AI OS 演进的四大核心理念。通过这些卡片，您可以了解系统是如何从“被动资源管理器”转变为“主动智能体”的。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-4 text-blue-500">&#9881;</div>
+                        <h4 class="text-xl font-bold mb-2">意图驱动界面 (LUI & Multimodal)</h4>
+                        <p class="text-slate-600 text-sm">打破传统的图形用户界面（GUI）和应用孤岛，系统能够直接理解用户的自然语言或多模态输入（语音、视觉、手势），自动规划任务并调用底层服务，无需用户频繁切换 App。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-4 text-teal-500">&#128421;</div>
+                        <h4 class="text-xl font-bold mb-2">端侧大模型部署 (Edge AI)</h4>
+                        <p class="text-slate-600 text-sm">将经过量化和裁剪的大语言模型（LLM）或多模态模型部署在本地设备上。这保证了极低的延迟，增强了用户数据隐私（断网可用），并大幅降低了云端算力成本。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-4 text-purple-500">&#127919;</div>
+                        <h4 class="text-xl font-bold mb-2">全局上下文感知 (Context Awareness)</h4>
+                        <p class="text-slate-600 text-sm">OS 掌握着最高的数据权限，AI OS 能够跨越应用边界，读取屏幕内容、地理位置、时间、传感器数据和用户历史习惯，从而提供“此时此地”最精准的推荐和服务。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-4 text-orange-500">&#128279;</div>
+                        <h4 class="text-xl font-bold mb-2">异构算力调度 (NPU/TPU 优化)</h4>
+                        <p class="text-slate-600 text-sm">AI OS 重构了底层的调度机制。除了传统的 CPU 和 GPU，系统原生支持并优化 NPU（神经网络处理器）的调用，在功耗和 AI 推理性能之间寻找最佳平衡。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-compare" class="content-section pt-10 border-t border-slate-200">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-4 mb-4">2. Tizen OS 与 Android 的 AI 路线对比</h3>
+                    <p class="text-slate-600">此雷达图直观展示了 Tizen（三星主导的物联网/家电 OS）与 Android（Google 主导的移动生态）在 AI 演进方向上的异同。Android 更侧重系统级基础模型和生态开放，而 Tizen 侧重于家电间的协同和轻量级感知。</p>
+                </div>
+
+                <div class="flex flex-col lg:flex-row items-center gap-10">
+                    <div class="w-full lg:w-1/2">
+                        <div class="chart-container bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                            <canvas id="compareChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full lg:w-1/2 space-y-6">
+                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                            <h4 class="font-bold text-blue-800 mb-2 flex items-center">&#128241; Android AI 侧重点</h4>
+                            <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5">
+                                <li><strong>系统级基础模型集成：</strong> 将 Gemini Nano 等大模型直接嵌入系统底层，作为基础设施提供给上层。</li>
+                                <li><strong>强大的开发者 API：</strong> 推出 AICore 框架，标准化 AI 开发接口，降低第三方应用接入端侧 AI 的门槛。</li>
+                                <li><strong>智能交互重塑：</strong> 推出 Circle to Search 等跨越应用边界的系统级 AI 交互方式。</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-teal-50 p-5 rounded-lg border border-teal-100">
+                            <h4 class="font-bold text-teal-800 mb-2 flex items-center">&#128250; Tizen OS AI 侧重点</h4>
+                            <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5">
+                                <li><strong>全屋智能中心化：</strong> AI 主要服务于 SmartThings 生态，使电视或冰箱成为全屋设备的智能控制中枢。</li>
+                                <li><strong>轻量级场景化：</strong> 受限于家电算力，侧重于图像画质增强（AI Upscaling）、内容推荐和基本语音指令（Bixby）。</li>
+                                <li><strong>跨设备无缝协同：</strong> AI 算法用于优化设备间的连接稳定性与上下文切换（如手机靠近电视自动投屏）。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-android-core" class="content-section pt-10 border-t border-slate-200">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-4 mb-4">3. Android 在 AI OS 领域的核心工作</h3>
+                    <p class="text-slate-600">Google 正在将 Android 从“支持 AI 运行的系统”改造为“以 AI 为核心驱动的系统”。以下是当前 Android 在 AI 领域的四大核心突破。点击按钮查看具体功能详情。</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-full md:w-1/3 flex flex-col space-y-3" id="feature-buttons">
+                        <button class="feature-btn w-full text-left px-5 py-4 rounded-lg bg-blue-600 text-white font-medium shadow-md transition-all" data-feature="gemini">
+                            内置 Gemini Nano 模型
+                        </button>
+                        <button class="feature-btn w-full text-left px-5 py-4 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-medium transition-all" data-feature="circle">
+                            全局多模态交互重塑
+                        </button>
+                        <button class="feature-btn w-full text-left px-5 py-4 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-medium transition-all" data-feature="aicore">
+                            Android AICore 系统服务
+                        </button>
+                        <button class="feature-btn w-full text-left px-5 py-4 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-medium transition-all" data-feature="privacy">
+                            Private Compute Core
+                        </button>
+                    </div>
+
+                    <div class="w-full md:w-2/3 bg-white p-8 rounded-xl shadow-sm border border-slate-200 min-h-[250px] relative overflow-hidden" id="feature-display">
+                        <div id="feature-content" class="fade-in">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-architecture" class="content-section pt-10 border-t border-slate-200">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 border-l-4 border-blue-600 pl-4 mb-4">4. Android 核心技术方案全景</h3>
+                    <p class="text-slate-600">本节通过交互式架构图，自底向上剖析 Android 是如何将 AI 能力深度融入操作系统的。点击架构图的不同层级，可在右侧查看该层的技术细节和组件说明。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    
+                    <div class="bg-slate-100 p-6 rounded-xl flex flex-col space-y-2">
+                        <h4 class="text-center font-bold text-slate-500 mb-2">Android AI 技术架构图</h4>
+                        
+                        <div class="layer-btn border-2 rounded-lg p-4 text-center cursor-pointer transition-all shadow-sm" data-layer="app" data-active="true">
+                            <span class="font-bold text-lg">应用层 (Application Layer)</span>
+                            <div class="text-xs mt-1 opacity-80">第一方 AI 应用 & 第三方 App 集成</div>
+                        </div>
+                        
+                        <div class="flex justify-center text-slate-400 py-1">&#8595; API 调用 &#8593; 结果返回</div>
+                        
+                        <div class="layer-btn border-2 rounded-lg p-4 text-center cursor-pointer transition-all shadow-sm" data-layer="framework" data-active="false">
+                            <span class="font-bold text-lg">框架层 (Framework Layer)</span>
+                            <div class="text-xs mt-1 opacity-80">Android AICore & ML Kit & CameraX</div>
+                        </div>
+
+                        <div class="flex justify-center text-slate-400 py-1">&#8595; 模型管理与路由 &#8593; 硬件状态</div>
+
+                        <div class="layer-btn border-2 rounded-lg p-4 text-center cursor-pointer transition-all shadow-sm" data-layer="system" data-active="false">
+                            <span class="font-bold text-lg">系统服务层 (System Services)</span>
+                            <div class="text-xs mt-1 opacity-80">Gemini Nano 基础模型 & NNAPI</div>
+                        </div>
+
+                        <div class="flex justify-center text-slate-400 py-1">&#8595; 算力卸载 &#8593; 推理加速</div>
+
+                        <div class="layer-btn border-2 rounded-lg p-4 text-center cursor-pointer transition-all shadow-sm" data-layer="hardware" data-active="false">
+                            <span class="font-bold text-lg">硬件抽象与算力层 (HAL & Hardware)</span>
+                            <div class="text-xs mt-1 opacity-80">Tensor NPU / GPU / CPU & Android HAL</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-lg h-full" id="layer-details-container">
+                    </div>
+
+                </div>
+            </section>
+            
+            <footer class="pt-10 pb-6 text-center border-t border-slate-200 mt-20">
+                <p class="text-sm text-slate-500">报告生成完毕。交互式探索数据仅作展示与架构分析之用。</p>
+            </footer>
+
+        </div>
+    </main>
+
+    <script>
+        const uiState = {
+            activeSection: 'section-concepts',
+            activeFeature: 'gemini',
+            activeLayer: 'app'
+        };
+
+        const featureData = {
+            gemini: {
+                title: "内置 Gemini Nano 端侧模型",
+                icon: "&#129302;",
+                content: "Google 在 Android 14/15 中首次将最高效的大语言模型 Gemini Nano 作为系统原生组件内置。它不仅服务于 Google 的第一方应用，更作为底层服务存在。<b>技术亮点：</b>无需网络连接即可处理文本摘要、智能回复等高频任务，彻底解决了云端 AI 延迟高、隐私泄露风险大的痛点。它被打包在系统中，随 GMS (Google Mobile Services) 模块化更新。"
+            },
+            circle: {
+                title: "Circle to Search (画圈搜索)",
+                icon: "&#11093;",
+                content: "打破了传统的 App 边界和搜索框限制，实现了“屏幕即输入”的跨模态交互。<b>技术方案：</b>系统层截取当前屏幕的视图层级和图像，结合 OCR 和图像识别技术，将用户圈选的区域连同上下文（如正在阅读的网页文本）一并发送给多模态大模型。这标志着 Android UI 从基于组件的点击向意图驱动的演进。"
+            },
+            aicore: {
+                title: "Android AICore：标准化 AI 服务",
+                icon: "&#9874;",
+                content: "AICore 是 Android 系统中专门负责管理设备端 AI 模型的全新系统服务（类似于管理位置信息的 LocationManager）。<b>技术方案：</b>它提供了模型下载、更新、安全护栏（Safety Filters）以及内存管理功能。开发者无需在自己的 App 中打包庞大的模型文件，只需通过 AICore API 即可调用系统级 Gemini Nano 的推理能力，极大减小了应用体积。"
+            },
+            privacy: {
+                title: "Private Compute Core (隐私计算核心)",
+                icon: "&#128274;",
+                content: "在处理极度敏感的上下文数据时（如 Live Caption, 智能回复），系统需要确保数据绝对不离开设备。<b>技术方案：</b>Android 构建了一个开源的安全隔离环境 PCC。在这个隔离区内运行的 AI 模型与外部网络完全物理隔离，所有的模型更新或学习结果都必须经过联邦学习（Federated Learning）或差分隐私技术的脱敏处理后，才能与云端进行极其有限的交互。"
+            }
+        };
+
+        const architectureData = {
+            app: {
+                title: "应用层 (Application Layer)",
+                points: [
+                    "<b>第一方集成：</b> 录音机 App（端侧录音摘要）、Gboard（智能回复推荐、语气转换）、相册（Magic Eraser）。这些应用直接得益于系统级的低延迟 AI。",
+                    "<b>第三方开发者：</b> 通过引入 Google AI Edge SDK 或 AICore API，第三方应用如 WhatsApp 可以在不增加安装包大小的前提下，实现端侧智能能力。"
+                ]
+            },
+            framework: {
+                title: "框架层 (Framework Layer)",
+                points: [
+                    "<b>Android AICore：</b> 核心服务。负责管理 Gemini Nano 的生命周期，处理多个 App 同时发起推理请求时的队列排队、内存分配和优先级调度。",
+                    "<b>ML Kit：</b> 面向更传统的机器学习任务（如条码扫描、人脸检测），提供开箱即用的封装。",
+                    "<b>安全过滤器 (Safety Guardrails)：</b> 在框架层截获模型输入输出，防止生成有害、暴力或违反政策的内容。"
+                ]
+            },
+            system: {
+                title: "系统服务层 (System Services Layer)",
+                points: [
+                    "<b>Gemini Nano：</b> 作为系统进程常驻内存（可配置），等待上层调用。",
+                    "<b>NNAPI (Neural Networks API)：</b> Android C++ 层的核心 API。它是一个中介，AICore 发出的算子请求会经过 NNAPI 进行解析。",
+                    "<b>Delegate 机制：</b> TensorFlow Lite 等推理引擎通过 Delegate 决定是将计算任务派发给 CPU、GPU 还是底层的 NPU。"
+                ]
+            },
+            hardware: {
+                title: "硬件抽象层与算力底座 (HAL & Hardware)",
+                points: [
+                    "<b>底层驱动：</b> 通过 Android HAL（硬件抽象层），系统屏蔽了不同芯片厂商（如 Google Tensor, Qualcomm Snapdragon, MediaTek）的底层差异。",
+                    "<b>NPU 算力释放：</b> 现代手机 SoC 包含专门处理矩阵运算的 NPU。当 NNAPI 识别到支持的运算模型时，会将任务卸载 (Offload) 到 NPU 执行，从而实现每秒数万亿次操作（TOPS）的高性能与低功耗。"
+                ]
+            }
+        };
+
+        function updateFeatureContent(featureKey) {
+            const data = featureData[featureKey];
+            const contentDiv = document.getElementById('feature-content');
+            
+            contentDiv.classList.remove('fade-in');
+            void contentDiv.offsetWidth;
+            
+            contentDiv.innerHTML = `
+                <div class="text-5xl mb-4">${data.icon}</div>
+                <h4 class="text-xl font-bold text-slate-800 mb-3">${data.title}</h4>
+                <p class="text-slate-600 leading-relaxed">${data.content}</p>
+            `;
+            
+            contentDiv.classList.add('fade-in');
+        }
+
+        function updateLayerContent(layerKey) {
+            const data = architectureData[layerKey];
+            const containerDiv = document.getElementById('layer-details-container');
+            
+            containerDiv.classList.remove('fade-in');
+            void containerDiv.offsetWidth; 
+            
+            let listHtml = data.points.map(point => `<li class="mb-3">${point}</li>`).join('');
+            
+            containerDiv.innerHTML = `
+                <h4 class="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">${data.title}</h4>
+                <ul class="list-disc pl-5 text-slate-700 leading-relaxed text-sm">${listHtml}</ul>
+            `;
+            
+            containerDiv.classList.add('fade-in');
+        }
+
+        document.querySelectorAll('.feature-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.feature-btn').forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                    b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                });
+                const target = e.currentTarget;
+                target.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                target.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                
+                const feature = target.getAttribute('data-feature');
+                updateFeatureContent(feature);
+            });
+        });
+
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.layer-btn').forEach(b => {
+                    b.setAttribute('data-active', 'false');
+                });
+                const target = e.currentTarget;
+                target.setAttribute('data-active', 'true');
+                
+                const layer = target.getAttribute('data-layer');
+                updateLayerContent(layer);
+            });
+        });
+
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = e.currentTarget.getAttribute('data-target');
+                document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('bg-blue-50', 'text-blue-700');
+                    item.classList.add('text-slate-600', 'hover:bg-slate-100');
+                });
+                e.currentTarget.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                e.currentTarget.classList.add('bg-blue-50', 'text-blue-700');
+            });
+        });
+
+        function initCharts() {
+            const ctx = document.getElementById('compareChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['端侧底层算力', '系统级模型融合', '第三方生态开放度', '跨设备智能协同', '轻量化/IoT适应性'],
+                    datasets: [
+                        {
+                            label: 'Android (Google)',
+                            data: [90, 95, 85, 75, 50],
+                            fill: true,
+                            backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                            borderColor: 'rgb(37, 99, 235)',
+                            pointBackgroundColor: 'rgb(37, 99, 235)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(37, 99, 235)'
+                        },
+                        {
+                            label: 'Tizen OS (Samsung)',
+                            data: [60, 50, 60, 90, 95],
+                            fill: true,
+                            backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                            borderColor: 'rgb(20, 184, 166)',
+                            pointBackgroundColor: 'rgb(20, 184, 166)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(20, 184, 166)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.formattedValue + ' 分';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateFeatureContent('gemini');
+            updateLayerContent('app');
+            initCharts();
+        });
+
+    </script>
+</body>
+</html>
